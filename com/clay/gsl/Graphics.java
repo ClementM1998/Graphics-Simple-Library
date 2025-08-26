@@ -99,12 +99,11 @@ public final class Graphics {
     // === Utility ===
     public static void refreshgraph() {
         drawing.repaint();
+        g2d.dispose();
     }
 
     public static void cleargraph() {
-        //g2d.setComposite(AlphaComposite.Clear);
         setbkcolor(bkcolor);
-        //g2d.setComposite(AlphaComposite.SrcOver);
     }
 
     public static void closegraph() {
@@ -112,6 +111,12 @@ public final class Graphics {
             window.dispose();
             System.exit(0);
         }
+    }
+
+    public static void delay(long msec) {
+        try {
+            Thread.sleep(msec);
+        } catch (InterruptedException e) {}
     }
 
     // === Warna & Gaya ===
