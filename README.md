@@ -1,28 +1,39 @@
+# 🎨 Graphics Simple Library (GSL)
 
-Graphics Simple Library (GSL)
+**GSL** ialah perpustakaan grafik ringkas dalam **Java** yang dibina berasaskan  
+`JFrame`, `Canvas` dan `BufferStrategy`, terinspirasi daripada **Borland Graphics Interface (BGI)**.  
 
-GSL ialah perpustakaan grafik ringkas dalam Java yang dibina berasaskan JFrame, Canvas dan BufferStrategy yang terinspirasi
-dari Borland Graphics Interface (BGI).
-Direka khas untuk projek latihan, demo grafik atau mini game 2D tanpa memerlukan perpustakaan luaran.
+Direka khas untuk:
+- Projek latihan  
+- Demo grafik  
+- Mini game 2D  
 
-Ciri-ciri
-* Warna Standard tersedia (RED, GREEN, BLUE, dll)
-* Input Keyboard (iskeydown, iskeypressed, iskeyreleased)
-* Input Mouse (getmousex, getmousey, dll)
-* Bentuk Asas (line, rect, circle, ellipse, arc, polygon, point)
-* Teks (text)
-* Frame Control (setFrameRate(fps), cleargraph, refreshgraph)
-* Anti-aliasing (setstrokewidth, setfont)
-* Window Lifecycle (initgraph, closegraph)
+👉 Tanpa memerlukan perpustakaan luaran.
 
-Cara Guna
+---
 
-1. Masukkan perpustakaan
+## ✨ Ciri-ciri
 
+- 🎨 Warna standard tersedia (`RED`, `GREEN`, `BLUE`, dll)  
+- ⌨️ Input Keyboard (`iskeydown`, `iskeypressed`, `iskeyreleased`)  
+- 🖱 Input Mouse (`getmousex`, `getmousey`, dll)  
+- 📐 Bentuk Asas: `line`, `rect`, `circle`, `ellipse`, `arc`, `polygon`, `point`  
+- 🔤 Teks: `text(...)`  
+- ⚡ Frame Control: `setFrameRate(fps)`, `cleargraph()`, `refreshgraph()`  
+- ✨ Anti-aliasing & gaya: `setstrokewidth()`, `setfont()`  
+- 🪟 Window Lifecycle: `initgraph()`, `closegraph()`  
+
+---
+
+## 🚀 Cara Guna
+
+### 1. Masukkan perpustakaan
+```java
 import com.clay.gsl.Graphics;
+```
 
-2. Contoh Demo Asas
-
+### 2. Contoh Demo Asas
+```java
 import static com.clay.gsl.Graphics.*;
 
 public class Demo {
@@ -32,13 +43,12 @@ public class Demo {
 
         while (true) {
             cleargraph();
-
             // Write code event here
 
             // Write code shape here
-            
+
             refreshgraph();
         }
-        
     }
 }
+```
