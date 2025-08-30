@@ -1,14 +1,13 @@
 # 🎨 Graphics Simple Library (GSL)
 
 **GSL** ialah perpustakaan grafik ringkas dalam **Java** yang dibina berasaskan  
-`JFrame`, `Canvas` dan `BufferStrategy`, terinspirasi daripada **Borland Graphics Interface (BGI)**.  
+`JFrame`, `Canvas` dan `BufferStrategy` yang terinspirasi daripada **Borland Graphics Interface (BGI)**.  
 
 Direka khas untuk:
 - Projek latihan  
 - Demo grafik  
-- Mini game 2D  
-
-👉 Tanpa memerlukan perpustakaan luaran.
+- Mini game 2D
+- Tanpa memerlukan perpustakaan luaran.
 
 ---
 
