@@ -1,16 +1,16 @@
 package com.clay.gsl;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.HashSet;
+import java.util.Set;
 
 public final class Graphics {
-    private static JFrame window;
-    private static Drawing drawing;
-    private static Graphics2D g2d;
-    private static Input input = new Input();
 
     // === Warna Standard ===
     public static final int RED = 0xFFFF0000;
@@ -32,6 +32,7 @@ public final class Graphics {
     public static final int PURPLE = 0xFF800080;
 
     // === Kunci ===
+    public static final int KEY_ESCAPE = KeyEvent.VK_ESCAPE;
     public static final int KEY_HOME = KeyEvent.VK_HOME;
     public static final int KEY_UP = KeyEvent.VK_UP;
     public static final int KEY_PAGE_UP = KeyEvent.VK_PAGE_UP;
@@ -52,65 +53,176 @@ public final class Graphics {
     public static final int KEY_F8 = KeyEvent.VK_F8;
     public static final int KEY_F9 = KeyEvent.VK_F9;
 
-    // === Variable ===
-    private static int bkcolor = BLACK;
-    private static boolean fill = false;
+    // --- window & drawing ---
+    private static JFrame window;
+    private static Canvas canvas;
+    private static BufferStrategy bufferStrategy;
+    private static Graphics2D g2; // current frame graphics
+    private static int width = 800;
+    private static int height = 600;
+    private static boolean antialis = true;
+    private static int targetFps = 0; // 0 = uncapped
+    private static long frameNanos = 0L;
+
+    private static Color clearColor = Color.BLACK; // default clear color
+    private static Color currentColor = Color.WHITE; // default current color
+
+    // --- input state ---
+    private static final boolean[] keyDown = new boolean[256];
+    private static final Set<Integer> keyPressed = new HashSet<>();
+    private static final Set<Integer> keyReleased = new HashSet<>();
+
+    private static volatile int mousex = 0;
+    private static volatile int mousey = 0;
+    private static final boolean[] mouseDown = new boolean[8]; // 1..7
+    private static final Set<Integer> mousePressed = new HashSet<>();
+    private static final Set<Integer> mouseReleased = new HashSet<>();
+
+    private static boolean initialized = false;
+
+    private Graphics() {}
+
+    // =========================================
+    // Lifecycle
+    // =========================================
 
     // === Init Window ===
     public static void initgraph(String title) {
-        initgraph(title, 800, 600);
+        initgraph(title, width, height);
     }
 
-    public static void initgraph(String title, int width, int height) {
-        initwindow(title, 0, 0, width, height);
+    public static void initgraph(String title, int w, int h) {
+        initwindow(title, 0, 0, w, h);
     }
 
-    public static void initwindow(String title, int x, int y, int width, int height) {
-        window = new JFrame(title);
+    public static void initwindow(String title, int x, int y, int w, int h) {
+        if (initialized) return;
 
-        window.setSize(width, height);
-        window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        window.setResizable(false);
-        window.setLayout(new BorderLayout());
+        width = Math.max(1, w);
+        height = Math.max(1, h);
 
-        drawing = new Drawing(width, height);
-        drawing.addKeyListener(input);
-        drawing.addMouseListener(input);
-        drawing.addMouseMotionListener(input);
-        drawing.setFocusable(true);
-        drawing.requestFocusInWindow();
+        Runnable ui = () -> {
+            window = new JFrame(title);
+            canvas = new Canvas();
+            window.setSize(width, height);
+            window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            window.setResizable(false);
+            window.setLayout(new BorderLayout());
 
-        window.add(drawing, BorderLayout.CENTER);
-        window.pack();
-        window.setLocation(x, y);
-        window.setVisible(true);
+            attachInputListeners();
 
-        g2d = (Graphics2D) drawing.createGraphics2D();
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-        g2d.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
+            window.add(canvas, BorderLayout.CENTER);
+            //window.pack();
+            window.setLocation(x, y);
+            window.setVisible(true);
 
-        // === Latar belakang BLACK secara lalai ===
-        setbkcolor(bkcolor);
-        setcolor(WHITE);
+            canvas.createBufferStrategy(3);
+            bufferStrategy = canvas.getBufferStrategy();
+            initialized = true;
+        };
+
+        if (SwingUtilities.isEventDispatchThread()) ui.run();
+        else try { SwingUtilities.invokeAndWait(ui); } catch (Exception e) {}
+
+        // prime frame timing
+        setFrameRate(targetFps);
     }
 
-    // === Utility ===
-    public static void refreshgraph() {
-        drawing.repaint();
-        g2d.dispose();
+    // ================================
+    // Frame control
+    // ================================
+
+    private static void beginFrame() {
+        ensureBuffer();
+        if (g2 != null) return; // already begun
+        g2 = (Graphics2D) bufferStrategy.getDrawGraphics();
+        if (antialis) {
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        }
     }
 
     public static void cleargraph() {
-        setbkcolor(bkcolor);
+        beginFrame();
+        g2.setColor(clearColor);
+        g2.fillRect(0, 0, getwindowwidth(), getwindowheight());
+    }
+
+    public static void refreshgraph() {
+        if (g2 != null) {
+            g2.dispose();
+            g2 = null;
+        }
+        if (bufferStrategy != null) {
+            if (!bufferStrategy.contentsLost()) bufferStrategy.show();
+            Toolkit.getDefaultToolkit().sync();
+        }
+        if (frameNanos > 0L) {
+            final long start = System.nanoTime();
+            final long end = start + frameNanos;
+            long now = start;
+            while (now < end) {
+                long sleepMs = (end - now) / 1000000L;
+                if (sleepMs > 0) try { Thread.sleep(Math.min(sleepMs, 2)); } catch (InterruptedException e) {}
+                else Thread.onSpinWait();
+                now = System.nanoTime();
+            }
+        }
+        keyPressed.clear();
+        keyReleased.clear();
+        mousePressed.clear();
+        mouseReleased.clear();
     }
 
     public static void closegraph() {
-        if (window != null) {
-            window.dispose();
-            System.exit(0);
+        if (!initialized) return;
+        try {
+            if (window != null) {
+                window.setVisible(false);
+                window.dispose();
+                System.exit(0);
+            }
+        } finally {
+            window = null;
+            canvas = null;
+            bufferStrategy = null;
+            g2 = null;
+            initialized = false;
         }
+    }
+
+    public static void setFrameRate(int fps) {
+        targetFps = Math.max(0, fps);
+        frameNanos = (targetFps <= 0) ? 0L : (1000000000L / targetFps);
+    }
+
+    public static int getwindowwidth() {
+        return (canvas != null) ? canvas.getWidth() : width;
+    }
+
+    public static int getwindowheight() {
+        return (canvas != null) ? canvas.getHeight() : height;
+    }
+
+    public static JFrame getwindow() {
+        return window;
+    }
+
+    public static Canvas getcanvasO() {
+        return canvas;
+    }
+
+    private static void ensureBuffer() {
+        if (canvas == null) return;
+        if (bufferStrategy == null) {
+            canvas.createBufferStrategy(3);
+            bufferStrategy = canvas.getBufferStrategy();
+        }
+    }
+
+    private static Graphics2D g() {
+        if (g2 == null) beginFrame();
+        return g2;
     }
 
     public static void delay(long msec) {
@@ -119,198 +231,263 @@ public final class Graphics {
         } catch (InterruptedException e) {}
     }
 
-    // === Warna & Gaya ===
-    public static void setbkcolor(int hex) {
-        bkcolor = hex;
-        setcolor(hex);
-        setfill(true);
-        rectangle(0, 0, drawing.getWidth(), drawing.getHeight());
-        setfill(false);
+    public static void setcolor(int color) {
+        Color current = new Color((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF, (color >> 24) & 0xFF);
+        currentColor = current;
     }
 
-    public static void setcolor(int hex) {
-        int alpha = (hex >> 24) & 0xFF;
-        int red = (hex >> 16) & 0xFF;
-        int green = (hex >> 8) & 0xFF;
-        int blue = hex & 0xFF;
-        if ((hex & 0xFF000000) == 0) alpha = 255; // tiada alpha -> penuh
-        g2d.setColor(new Color(red, green, blue, alpha));
+    public static void setcolor(int color, int alpha) {
+        Color current = new Color((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF, (color >> 24) & 0xFF);
+        int red = current.getRed();
+        int green = current.getGreen();
+        int blue = current.getBlue();
+        currentColor = new Color(red, green, blue, alpha);
     }
 
-    public static void setfill(boolean f) {
-        fill = f;
+    public static void setstrokewidth(float w) {
+        g().setStroke(new BasicStroke(w));
     }
 
-    public static void setlinestyle(float width, float ... dash) {
-        if (dash.length == 0) g2d.setStroke(new BasicStroke(width));
-        else g2d.setStroke(new BasicStroke(width, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 1.0f, dash, 0));
+    public static void setfont(Font f) {
+        g().setFont(f);
     }
 
-    // === Bentuk Asas ===
+    public static void setantialis(boolean on) {
+        antialis = on;
+    }
+
+    public static void setclearcolor(int color) {
+        clearColor = new Color(color, true);
+        if (canvas != null) canvas.setBackground(new Color(color, true));
+    }
+
     public static void line(int x1, int y1, int x2, int y2) {
-        g2d.drawLine(x1, y1, x2, y2);
+        g().setColor(currentColor);
+        g().drawLine(x1, y1, x2, y2);
     }
 
-    public static void circle(int cx, int cy, int r) {
-        if (fill) g2d.fillOval(cx - r, cy - r, r * 2, r * 2);
-        else g2d.drawOval(cx - r, cy - r, r * 2, r * 2);
+    public static void point(int x, int y) {
+        g().setColor(currentColor);
+        g().fillOval(x, y, 1, 1);
     }
 
-    public static void ellipse(int x, int y, int w, int h) {
-        if (fill) g2d.fillOval(x, y, w, h);
-        else g2d.drawOval(x, y, w, h);
+    public static void drawarc(int x, int y, int width, int height, int start, int sweep) {
+        g().setColor(currentColor);
+        g().drawArc(x, y, width, height, start, sweep);
     }
 
-    public static void rectangle(int x, int y, int w, int h) {
-        if (fill) g2d.fillRect(x, y, w - x, h - y);
-        else g2d.drawRect(x, y, w - x, h - y);
+    public static void fillarc(int x, int y, int width, int height, int start, int sweep) {
+        g().setColor(currentColor);
+        g().fillArc(x, y, width, height, start, sweep);
     }
 
-    public static void polygon(int[] x, int[] y, int n) {
-        if (fill) g2d.fillPolygon(x, y, n);
-        else g2d.drawPolygon(x, y, n);
+    public static void drawrect(int x, int y, int w, int h) {
+        g().setColor(currentColor);
+        g().drawRect(x, y, w - x, h - y);
     }
 
-    public static void polygon(int num, int[] points) {
-        if (points.length < num * 2) throw new IllegalArgumentException("Jumlah koordinat tidak mencukupi untuk polygon");
+    public static void fillrect(int x, int y, int w, int h) {
+        g().setColor(currentColor);
+        g().fillRect(x, y, w - x, h - y);
+    }
+
+    public static void drawellipse(int x, int y, int w, int h) {
+        g().setColor(currentColor);
+        g().drawOval(x, y, w, h);
+    }
+
+    public static void fillellipse(int x, int y, int w, int h) {
+        g().setColor(currentColor);
+        g().fillOval(x, y, w, h);
+    }
+
+    public static void drawcircle(int cx, int cy, int r) {
+        g().setColor(currentColor);
+        g().drawOval(cx - r, cy - r, r * 2, r * 2);
+    }
+
+    public static void fillcircle(int cx, int cy, int r) {
+        g().setColor(currentColor);
+        g().fillOval(cx - r, cy - r, r * 2, r * 2);
+    }
+
+    public static void drawpolygon(int[] xpoints, int[] ypoints, int npoint) {
+        g().setColor(currentColor);
+        g().drawPolygon(xpoints, ypoints, npoint);
+    }
+
+    public static void fillpolygon(int[] xpoints, int[] ypoints, int npoint) {
+        g().setColor(currentColor);
+        g().fillPolygon(xpoints, ypoints, npoint);
+    }
+
+    public static void drawpolygon(int num, int[] points) {
+        if (points.length < 2 * num) return;
         int[] x = new int[num];
         int[] y = new int[num];
         for (int i = 0;i < num;i++) {
-            x[i] = points[i * 2];
-            y[i] = points[i * 2 + 1];
+            x[i] = points[2 * i];
+            y[i] = points[2 * i + 1];
         }
-        if (fill) g2d.fillPolygon(x, y, num);
-        else g2d.drawPolygon(x, y, num);
+        g().setColor(currentColor);
+        g().drawPolygon(x, y, num);
     }
 
-    public static void triangle(int x1, int y1, int x2, int y2, int x3, int y3) {
-        int[] x = { x1, x2, x3 };
-        int[] y = { y1, y2, y3 };
-        if (fill) g2d.fillPolygon(x, y, 3);
-        else g2d.drawPolygon(x, y, 3);
+    public static void fillpolygon(int num, int[] points) {
+        if (points.length < 2 * num) return;
+        int[] x = new int[num];
+        int[] y = new int[num];
+        for (int i = 0;i < num;i++) {
+            x[i] = points[2 * i];
+            y[i] = points[2 * i + 1];
+        }
+        g().setColor(currentColor);
+        g().fillPolygon(x, y, num);
     }
 
-    public static void arc(int x, int y, int w, int h, int start, int sweep) {
-        if (fill) g2d.fillArc(x, y, w, h, start, sweep);
-        else g2d.drawArc(x, y, w, h, start, sweep);
+    public static void drawimage(String path, int x, int y) {
+        drawimage(path, x, y, 200, 200);
     }
 
-    public static void putpixel(int x, int y, int color) {
-        drawing.buffer.setRGB(x, y, color);
+    public static void drawimage(String path, int x, int y, int w, int h) {
+        File file = new File(path);
+        if (file.exists() && file.getName().endsWith(".png")) {
+            BufferedImage image = null;
+            try {
+                image = ImageIO.read(file);
+            } catch (Exception e) {}
+            if (image != null) g().drawImage(image, x, y, w, h, null);
+        }
     }
 
-    public static void textxy(String text, int x, int y) {
-        textxy(text, x, y, 14);
+    public static void text(String text, int x, int y) {
+        FontMetrics fm = g().getFontMetrics();
+        g().setColor(currentColor);
+        g().drawString(text, x, y + fm.getAscent());
     }
 
-    public static void textxy(String text, int x, int y, int size) {
-        g2d.setFont(new Font("Arial", Font.PLAIN, size));
-        g2d.drawString(text, x, y);
+    public static void println(String text) {}
+
+    private static void attachInputListeners() {
+        // Key
+        canvas.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {}
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                int code = e.getKeyCode() & 0xFF;
+                if (!keyDown[code]) keyPressed.add(code);
+                keyDown[code] = true;
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                int code = e.getKeyCode() & 0xFF;
+                keyDown[code] = false;
+                keyReleased.add(code);
+            }
+        });
+        // Mouse buttons + motion
+        MouseListener ml = new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {}
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                int b = e.getButton();
+                if (b >= 0 && b < mouseDown.length) {
+                    if (!mouseDown[b]) mousePressed.add(b);
+                    mouseDown[b] = true;
+                }
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                int b = e.getButton();
+                if (b >= 0 && b < mouseDown.length) {
+                    mouseDown[b] = false;
+                    mouseReleased.add(b);
+                }
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                mousex = e.getX();
+                mousey = e.getY();
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                mousex = e.getX();
+                mousey = e.getY();
+            }
+        };
+
+        MouseMotionListener mml = new MouseMotionListener() {
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                mousex = e.getX();
+                mousey = e.getY();
+            }
+
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                mousex = e.getX();
+                mousey = e.getY();
+            }
+        };
+
+        canvas.addMouseListener(ml);
+        canvas.addMouseMotionListener(mml);
+
+        canvas.setFocusable(true);
+        canvas.requestFocusInWindow();
     }
 
-    // === Pengandalian Kekunci dan Tetikus
+    // Key queries
+    public static boolean iskeydown(int key) {
+        return keyDown[key & 0xFF];
+    }
+
     public static boolean iskeypressed(int key) {
-        return input.isKeyPressed(key);
+        return keyPressed.contains(key & 0xFF);
     }
 
-    public static boolean ismousepressed() {
-        return input.isMousePressed();
+    public static boolean iskeyreleased(int key) {
+        return keyReleased.contains(key & 0xFF);
     }
 
+    // Mouse queries
     public static int getmousex() {
-        return input.getMouseX();
+        return mousex;
     }
 
     public static int getmousey() {
-        return input.getMouseY();
+        return mousey;
     }
 
-    // === Drawing Canvas ===
-    private static class Drawing extends Canvas {
-        private BufferedImage buffer;
-
-        public Drawing(int width, int height) {
-            buffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-            setPreferredSize(new Dimension(width, height));
-            setSize(width, height);
-        }
-
-        public Graphics2D createGraphics2D() {
-            return buffer.createGraphics();
-        }
-
-        @Override
-        public void paint(java.awt.Graphics g) {
-            g.drawImage(buffer, 0, 0, null);
-        }
+    public static boolean ismousedown(int button) {
+        return (button >= 0 && button < mouseDown.length) && mouseDown[button];
     }
 
-    // === Input Handler ===
-    private static class Input implements KeyListener, MouseListener, MouseMotionListener {
-        private static HashSet<Integer> keys = new HashSet<>();
-        private static boolean mousePressed = false;
-        private static int mouseX, mouseY;
+    public static boolean ismousepressed(int button) {
+        return mousePressed.contains(button);
+    }
 
-        public boolean isKeyPressed(int key) {
-            return keys.contains(key);
-        }
+    public static boolean ismousereleased(int button) {
+        return mouseReleased.contains(button);
+    }
 
-        public boolean isMousePressed() {
-            return mousePressed;
-        }
+    public static void textcentered(String text, int cx, int cy) {
+        FontMetrics fm = g().getFontMetrics();
+        int x = cx - fm.stringWidth(text) / 2;
+        int y = cy - (fm.getAscent() - fm.getDescent()) / 2;
+        g().drawString(text, x, y);
+    }
 
-        public int getMouseX() {
-            return mouseX;
-        }
-
-        public int getMouseY() {
-            return mouseY;
-        }
-
-        @Override
-        public void keyTyped(KeyEvent keyEvent) {}
-
-        @Override
-        public void keyPressed(KeyEvent keyEvent) {
-            keys.add(keyEvent.getKeyCode());
-        }
-
-        @Override
-        public void keyReleased(KeyEvent keyEvent) {
-            keys.remove(keyEvent.getKeyCode());
-        }
-
-        @Override
-        public void mouseClicked(MouseEvent mouseEvent) {}
-
-        @Override
-        public void mousePressed(MouseEvent mouseEvent) {
-            mousePressed = true;
-        }
-
-        @Override
-        public void mouseReleased(MouseEvent mouseEvent) {
-            mousePressed = false;
-        }
-
-        @Override
-        public void mouseEntered(MouseEvent mouseEvent) {}
-
-        @Override
-        public void mouseExited(MouseEvent mouseEvent) {}
-
-        @Override
-        public void mouseDragged(MouseEvent mouseEvent) {
-            mouseX = mouseEvent.getX();
-            mouseY = mouseEvent.getY();
-        }
-
-        @Override
-        public void mouseMoved(MouseEvent mouseEvent) {
-            mouseX = mouseEvent.getX();
-            mouseY = mouseEvent.getY();
-        }
-
+    public static BufferedImage createimage(int w, int h) {
+        return new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
     }
 
 }
