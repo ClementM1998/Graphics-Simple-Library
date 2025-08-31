@@ -25,7 +25,7 @@ Direka khas untuk:
 
 ---
 
-## 🚀 Cara Guna
+## Cara Guna
 
 ### 1. Masukkan perpustakaan
 ```java
