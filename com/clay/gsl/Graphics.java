@@ -7,8 +7,10 @@ import java.awt.event.*;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Stack;
 
 public final class Graphics {
 
@@ -53,6 +55,11 @@ public final class Graphics {
     public static final int KEY_F8 = KeyEvent.VK_F8;
     public static final int KEY_F9 = KeyEvent.VK_F9;
 
+    // Tetikus
+    public static final int MOUSE_BUTTON_LEFT = MouseEvent.BUTTON1;
+    public static final int MOUSE_BUTTON_MIDDLE = MouseEvent.BUTTON2;
+    public static final int MOUSE_BUTTON_RIGHT = MouseEvent.BUTTON3;
+
     // --- window & drawing ---
     private static JFrame window;
     private static Canvas canvas;
@@ -64,7 +71,7 @@ public final class Graphics {
     private static int targetFps = 0; // 0 = uncapped
     private static long frameNanos = 0L;
 
-    private static Color clearColor = Color.BLACK; // default clear color
+    private static Color backgroundColor = Color.BLACK; // default clear color
     private static Color currentColor = Color.WHITE; // default current color
 
     // --- input state ---
@@ -144,7 +151,7 @@ public final class Graphics {
 
     public static void cleargraph() {
         beginFrame();
-        g2.setColor(clearColor);
+        g2.setColor(backgroundColor);
         g2.fillRect(0, 0, getwindowwidth(), getwindowheight());
     }
 
@@ -231,6 +238,15 @@ public final class Graphics {
         } catch (InterruptedException e) {}
     }
 
+    public static void setbkcolor(int color) {
+        backgroundColor = new Color(color, true);
+        if (canvas != null) canvas.setBackground(new Color(color, true));
+    }
+
+    public static int getbkcolor() {
+        return backgroundColor.getRGB();
+    }
+
     public static void setcolor(int color) {
         Color current = new Color((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF, (color >> 24) & 0xFF);
         currentColor = current;
@@ -244,21 +260,23 @@ public final class Graphics {
         currentColor = new Color(red, green, blue, alpha);
     }
 
+    public static int getcolor() {
+        return currentColor.getRGB();
+    }
+
     public static void setstrokewidth(float w) {
         g().setStroke(new BasicStroke(w));
     }
 
-    public static void setfont(Font f) {
-        g().setFont(f);
+    public static void settextstyle(String name, int style, int size) {
+        // Tukar font family (Arial, Courier, dsb)
+        // Style (plain, bold, italic)
+        // Size (px atau pt)
+        g().setFont(new Font(name, style, size));
     }
 
     public static void setantialis(boolean on) {
         antialis = on;
-    }
-
-    public static void setclearcolor(int color) {
-        clearColor = new Color(color, true);
-        if (canvas != null) canvas.setBackground(new Color(color, true));
     }
 
     public static void line(int x1, int y1, int x2, int y2) {
@@ -266,32 +284,69 @@ public final class Graphics {
         g().drawLine(x1, y1, x2, y2);
     }
 
-    public static void point(int x, int y) {
-        g().setColor(currentColor);
-        g().fillOval(x, y, 1, 1);
+    // point > putpixel
+    public static void putpixel(int x, int y, int color) {
+        g().setColor(new Color(color, true));
+        g().drawLine(x, y, x, y);
     }
 
-    public static void drawarc(int x, int y, int width, int height, int start, int sweep) {
+    // drawarc > arc
+    // arc versi circle (radius)
+    public static void arc(int x, int y, int start, int end, int radius) {
         g().setColor(currentColor);
-        g().drawArc(x, y, width, height, start, sweep);
+        g().drawArc(x - radius, y - radius, radius * 2, radius * 2, start, end - start);
     }
 
-    public static void fillarc(int x, int y, int width, int height, int start, int sweep) {
+    // fillarc > pieslice
+    // pieslice (macam arc tapi isi)
+    public static void pieslice(int x, int y, int start, int end, int radius) {
         g().setColor(currentColor);
-        g().fillArc(x, y, width, height, start, sweep);
+        g().fillArc(x - radius, y - radius, radius * 2, radius * 2, start, end - start);
     }
 
-    public static void drawrect(int x, int y, int w, int h) {
+    // sector (ellipse slice)
+    public static void sector(int x, int y, int start, int end, int xradius, int yradius) {
         g().setColor(currentColor);
-        g().drawRect(x, y, w - x, h - y);
+        g().fillArc(x - xradius, y - yradius, xradius * 2, yradius * 2, start, end - start);
     }
 
-    public static void fillrect(int x, int y, int w, int h) {
+    // drawrect > rectangle
+    public static void rectangle(int x1, int y1, int x2, int y2) {
         g().setColor(currentColor);
-        g().fillRect(x, y, w - x, h - y);
+        g().drawRect(x1, y1, x2 - x1, y2 - y1);
     }
 
-    public static void drawellipse(int x, int y, int w, int h) {
+    // fillrect > bar
+    public static void bar(int x1, int y1, int x2, int y2) {
+        g().setColor(currentColor);
+        g().fillRect(x1, y1, x2 - x1, y2 - y1);
+    }
+
+    public static void bar3d(int x1, int y1, int x2, int y2, int depth, boolean topflag) {
+        int w = x2 - x1;
+        int h = y2 - y1;
+
+        g().setColor(currentColor);
+        // isi kotak depan
+        g().fillRect(x1, y1, w, h);
+        // garis outline kotak depan
+        g().drawRect(x1, y1, w, h);
+        // sisi kanan
+        int[] xRight = { x2, x2 + depth, x2 + depth, x2 };
+        int[] yRight = { y1, y1 - depth, y2 - depth, y2 };
+        g().drawPolygon(xRight, yRight, 4);
+        g().fillPolygon(xRight, yRight, 4);
+        if (topflag) {
+            // sisi atas
+            int[] xTop = { x1, x2, x2 + depth, x1 + depth };
+            int[] yTop = { y1, y1, y1 - depth, y1 - depth };
+            g().drawPolygon(xTop, yTop, 4);
+            g().fillPolygon(xTop, yTop, 4);
+        }
+
+    }
+
+    public static void ellipse(int x, int y, int w, int h) {
         g().setColor(currentColor);
         g().drawOval(x, y, w, h);
     }
@@ -301,27 +356,12 @@ public final class Graphics {
         g().fillOval(x, y, w, h);
     }
 
-    public static void drawcircle(int cx, int cy, int r) {
+    public static void circle(int cx, int cy, int r) {
         g().setColor(currentColor);
         g().drawOval(cx - r, cy - r, r * 2, r * 2);
     }
 
-    public static void fillcircle(int cx, int cy, int r) {
-        g().setColor(currentColor);
-        g().fillOval(cx - r, cy - r, r * 2, r * 2);
-    }
-
-    public static void drawpolygon(int[] xpoints, int[] ypoints, int npoint) {
-        g().setColor(currentColor);
-        g().drawPolygon(xpoints, ypoints, npoint);
-    }
-
-    public static void fillpolygon(int[] xpoints, int[] ypoints, int npoint) {
-        g().setColor(currentColor);
-        g().fillPolygon(xpoints, ypoints, npoint);
-    }
-
-    public static void drawpolygon(int num, int[] points) {
+    public static void drawpoly(int num, int[] points) {
         if (points.length < 2 * num) return;
         int[] x = new int[num];
         int[] y = new int[num];
@@ -333,7 +373,7 @@ public final class Graphics {
         g().drawPolygon(x, y, num);
     }
 
-    public static void fillpolygon(int num, int[] points) {
+    public static void fillpoly(int num, int[] points) {
         if (points.length < 2 * num) return;
         int[] x = new int[num];
         int[] y = new int[num];
@@ -345,28 +385,92 @@ public final class Graphics {
         g().fillPolygon(x, y, num);
     }
 
-    public static void drawimage(String path, int x, int y) {
-        drawimage(path, x, y, 200, 200);
+    public static BufferedImage loadimage(String path) {
+        return loadimage(new File(path));
     }
 
-    public static void drawimage(String path, int x, int y, int w, int h) {
-        File file = new File(path);
-        if (file.exists() && file.getName().endsWith(".png")) {
-            BufferedImage image = null;
+    public static BufferedImage loadimage(File file) {
+        if (file.exists()) {
             try {
-                image = ImageIO.read(file);
-            } catch (Exception e) {}
-            if (image != null) g().drawImage(image, x, y, w, h, null);
+                return ImageIO.read(file);
+            } catch (IOException e) {
+                return null;
+            }
+        } else {
+            return null;
         }
     }
 
-    public static void text(String text, int x, int y) {
+    public static void drawimagepixels(BufferedImage img, int px, int py) {
+        for (int y = 0;y < img.getHeight();y++) {
+            for (int x = 0;x < img.getWidth();x++) {
+                int color = img.getRGB(x, y);
+                putpixel(px + x, py + y, color);
+            }
+        }
+    }
+
+    public static void putimage(BufferedImage img, int x, int y) {
+        g().drawImage(img, x, y, null);
+    }
+
+    public static void outtextxy(String text, int x, int y) {
         FontMetrics fm = g().getFontMetrics();
         g().setColor(currentColor);
         g().drawString(text, x, y + fm.getAscent());
     }
 
-    public static void println(String text) {}
+    // getpixel (ambil warna pixel dari canvas)
+    public static int getpixel(int x, int y) {
+        BufferedImage img = new BufferedImage(getwindowwidth(), getwindowheight(), BufferedImage.TYPE_INT_ARGB);
+        Graphics2D gimg = img.createGraphics();
+        canvas.paint(gimg);
+        gimg.dispose();
+        return img.getRGB(x, y);
+    }
+
+    // floodfill (simple: isi statu warna dalam polygon tertutup)
+    // basic version sahaja, tidak se-efisien WinBGI
+    public static void floodfill(int x, int y, int newColor) {
+        BufferedImage img = new BufferedImage(getwindowwidth(), getwindowheight(), BufferedImage.TYPE_INT_ARGB);
+        Graphics2D gimg = img.createGraphics();
+        canvas.paint(gimg);
+        gimg.dispose();
+
+        int targetColor = img.getRGB(x, y);
+        if (targetColor == newColor) return;
+
+        Stack<Point> stack = new Stack<>();
+        stack.push(new Point(x, y));
+
+        while (!stack.isEmpty()) {
+            Point p = stack.pop();
+            if (p.x < 0 || p.y < 0 || p.x >= img.getWidth() || p.y >= img.getHeight()) continue;
+            if (img.getRGB(p.x, p.y) != targetColor) continue;
+
+            img.setRGB(p.x, p.y, newColor);
+            stack.push(new Point(p.x + 1, p.y));
+            stack.push(new Point(p.x - 1, p.y));
+            stack.push(new Point(p.x, p.y + 1));
+            stack.push(new Point(p.x, p.y - 1));
+        }
+
+        g().drawImage(img, 0, 0, null);
+    }
+
+    public static BufferedImage createimage(int w, int h) {
+        return new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+    }
+
+    public static void saveframe(String path) {
+        BufferedImage img = new BufferedImage(getwindowwidth(), getwindowheight(), BufferedImage.TYPE_INT_ARGB);
+        Graphics2D gimg = img.createGraphics();
+        canvas.paint(gimg);
+        gimg.dispose();
+        try {
+            ImageIO.write(img, "png", new File(path));
+        } catch (Exception e) {}
+    }
 
     private static void attachInputListeners() {
         // Key
@@ -477,17 +581,6 @@ public final class Graphics {
 
     public static boolean ismousereleased(int button) {
         return mouseReleased.contains(button);
-    }
-
-    public static void textcentered(String text, int cx, int cy) {
-        FontMetrics fm = g().getFontMetrics();
-        int x = cx - fm.stringWidth(text) / 2;
-        int y = cy - (fm.getAscent() - fm.getDescent()) / 2;
-        g().drawString(text, x, y);
-    }
-
-    public static BufferedImage createimage(int w, int h) {
-        return new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
     }
 
 }
