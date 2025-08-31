@@ -95,5 +95,5 @@ public class BouncingBall {
 
 ### Demo BouncingBall
 
-![Demo](demo.gif)
+![Demo](github-res/demo.gif)
 
