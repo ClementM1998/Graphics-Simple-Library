@@ -17,7 +17,7 @@ Direka khas untuk:
 - ⌨️ Input Keyboard (`iskeydown`, `iskeypressed`, `iskeyreleased`)  
 - 🖱 Input Mouse (`getmousex`, `getmousey`, dll)  
 - 📐 Bentuk Asas: `line`, `rect`, `circle`, `ellipse`, `arc`, `polygon`, `point`  
-- 🔤 Teks: `text(...)`  
+- 🔤 Teks: `outtextxy(...)`  
 - ⚡ Frame Control: `setFrameRate(fps)`, `cleargraph()`, `refreshgraph()`  
 - ✨ Anti-aliasing & gaya: `setstrokewidth()`, `setfont()`  
 - 🪟 Window Lifecycle: `initgraph()`, `closegraph()`  
