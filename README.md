@@ -16,7 +16,7 @@ Direka khas untuk:
 - 🎨 Warna standard tersedia (`RED`, `GREEN`, `BLUE`, dll)  
 - ⌨️ Input Keyboard (`iskeydown`, `iskeypressed`, `iskeyreleased`)  
 - 🖱 Input Mouse (`getmousex`, `getmousey`, dll)  
-- 📐 Bentuk Asas: `line`, `rect`, `circle`, `ellipse`, `arc`, `polygon`, `point`  
+- 📐 Bentuk Asas: `line`, `putpixel`, `arc`, `pieslice`, `sector`, `bar`, `bar3`, `ellipse`, `fillellipse`, `circle`, `drawpoly`, `fillpoly`
 - 🔤 Teks: `outtextxy(...)`  
 - ⚡ Frame Control: `setFrameRate(fps)`, `cleargraph()`, `refreshgraph()`  
 - ✨ Anti-aliasing & gaya: `setstrokewidth()`, `setfont()`  
