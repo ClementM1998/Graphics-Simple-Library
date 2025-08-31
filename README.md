@@ -31,7 +31,7 @@ Direka khas untuk:
 import com.clay.gsl.Graphics;
 ```
 
-### 2. Contoh Demo Asas
+### 2. Contoh Demo.java Asas
 ```java
 import static com.clay.gsl.Graphics.*;
 
@@ -51,3 +51,5 @@ public class Demo {
     }
 }
 ```
+
+## Contoh BouncingBall.java
