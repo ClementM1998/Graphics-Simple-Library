@@ -1,4 +1,4 @@
-# 🎨 Graphics Simple Library (GSL)
+# Graphics Simple Library (GSL)
 
 **GSL** ialah perpustakaan grafik ringkas dalam **Java** yang dibina berasaskan  
 `JFrame`, `Canvas` dan `BufferStrategy` yang terinspirasi daripada **Borland Graphics Interface (BGI)**.  
@@ -11,16 +11,17 @@ Direka khas untuk:
 
 ---
 
-## ✨ Ciri-ciri
+## Ciri-ciri
 
-- 🎨 Warna standard tersedia (`RED`, `GREEN`, `BLUE`, dll)  
-- ⌨️ Input Keyboard (`iskeydown`, `iskeypressed`, `iskeyreleased`)  
-- 🖱 Input Mouse (`getmousex`, `getmousey`, dll)  
-- 📐 Bentuk Asas: `line`, `putpixel`, `arc`, `pieslice`, `sector`, `bar`, `bar3`, `ellipse`, `fillellipse`, `circle`, `drawpoly`, `fillpoly`
-- 🔤 Teks: `outtextxy(...)`  
-- ⚡ Frame Control: `setFrameRate(fps)`, `cleargraph()`, `refreshgraph()`  
-- ✨ Anti-aliasing & gaya: `setstrokewidth()`, `setfont()`  
-- 🪟 Window Lifecycle: `initgraph()`, `closegraph()`  
+- Warna standard tersedia (`RED`, `GREEN`, `BLUE`, dll)  
+- Input Keyboard (`iskeydown`, `iskeypressed`, `iskeyreleased`)  
+- Input Mouse (`getmousex`, `getmousey`, dll)  
+- Bentuk Asas: `line`, `putpixel`, `arc`, `pieslice`, `sector`, `bar`, `bar3`, `ellipse`, `fillellipse`, `circle`, `drawpoly`, `fillpoly`
+- Teks: `outtextxy`
+- Imej: `loadimage`, `drawimagepixels`, `putimage`, `createimage`, `saveframe`
+- Frame Control: `setFrameRate(fps)`, `cleargraph()`, `refreshgraph()`  
+- Anti-aliasing & gaya: `setstrokewidth()`, `setfont()`  
+- Window Lifecycle: `initgraph()`, `closegraph()`  
 
 ---
 
