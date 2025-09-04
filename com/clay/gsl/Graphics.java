@@ -530,6 +530,7 @@ public final class Graphics {
 
             @Override
             public void keyReleased(KeyEvent e) {
+                lastchar = '\0';
                 int code = e.getKeyCode() & 0xFF;
                 keyDown[code] = false;
                 keyReleased.add(code);
@@ -613,7 +614,7 @@ public final class Graphics {
 
     public static char getch() {
         char c = lastchar;
-        lastchar = '\0'; // reset supaya hanya dibaca sekali
+        //lastchar = '\0'; // reset supaya hanya dibaca sekali
         return c;
     }
 
