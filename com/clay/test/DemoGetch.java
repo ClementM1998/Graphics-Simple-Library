@@ -1,6 +1,6 @@
 package com.clay.test;
 
-import static com.clay.gsl.Graphcis.*;
+import static com.clay.gsl.Graphics.*;
 
 public class DemoGetch {
     public static void main(String[] args) {
@@ -11,7 +11,7 @@ public class DemoGetch {
         circle(320, 240, 100);
 
         setcolor(WHITE);
-        outtextxy(250, 450, "Tekan apa-apa key untuk keluar ...");
+        outtextxy("Tekan apa-apa key untuk keluar ...", 250, 450);
 
         while (!isKB()) refreshgraph();
 
