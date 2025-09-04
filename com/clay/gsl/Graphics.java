@@ -105,6 +105,7 @@ public final class Graphics {
     private static final boolean[] keyDown = new boolean[256];
     private static final Set<Integer> keyPressed = new HashSet<>();
     private static final Set<Integer> keyReleased = new HashSet<>();
+    private static volatile char lastchar = '\0';
 
     private static volatile int mousex = 0;
     private static volatile int mousey = 0;
@@ -160,6 +161,7 @@ public final class Graphics {
 
         // prime frame timing
         setFrameRate(targetFps);
+        cleargraph();
     }
 
     // ================================
@@ -242,7 +244,7 @@ public final class Graphics {
         return window;
     }
 
-    public static Canvas getcanvasO() {
+    public static Canvas getcanvas() {
         return canvas;
     }
 
@@ -370,7 +372,6 @@ public final class Graphics {
             g().drawPolygon(xTop, yTop, 4);
             g().fillPolygon(xTop, yTop, 4);
         }
-
     }
 
     public static void ellipse(int x, int y, int w, int h) {
@@ -410,6 +411,20 @@ public final class Graphics {
         }
         g().setColor(currentColor);
         g().fillPolygon(x, y, num);
+    }
+
+    public static void triangle(int x1, int y1, int x2, int y2, int x3, int y3) {
+        int[] x = { x1, x2, x3 };
+        int[] y = { y1, y2, y3 };
+        g().setColor(currentColor);
+        g().drawPolygon(x, y, 3);
+    }
+
+    public static void filltriangle(int x1, int y1, int x2, int y2, int x3, int y3) {
+        int[] x = { x1, x2, x3 };
+        int[] y = { y1, y2, y3 };
+        g().setColor(currentColor);
+        g().fillPolygon(x, y, 3);
     }
 
     public static BufferedImage loadimage(String path) {
@@ -507,6 +522,7 @@ public final class Graphics {
 
             @Override
             public void keyPressed(KeyEvent e) {
+                lastchar = e.getKeyChar();
                 int code = e.getKeyCode() & 0xFF;
                 if (!keyDown[code]) keyPressed.add(code);
                 keyDown[code] = true;
@@ -593,6 +609,12 @@ public final class Graphics {
         for (boolean kd : keyDown) if (kd) return true;
         if (!keyPressed.isEmpty() || !keyReleased.isEmpty()) return true;
         return false;
+    }
+
+    public static char getch() {
+        char c = lastchar;
+        lastchar = '\0'; // reset supaya hanya dibaca sekali
+        return c;
     }
 
     // Mouse queries
