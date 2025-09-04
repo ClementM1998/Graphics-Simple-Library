@@ -9,6 +9,11 @@ Direka khas untuk:
 - Mini game 2D
 - Tanpa memerlukan perpustakaan luaran.
 
+Dapat dijalankan pada OS:
+- Windows (sudah di cuba)
+- Linux (sudah di cuba)
+- MacOS (belum di cuba)
+
 ---
 
 ## Ciri-ciri
