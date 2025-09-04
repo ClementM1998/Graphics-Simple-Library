@@ -25,6 +25,32 @@ Direka khas untuk:
 
 ---
 
+---
+
+## Fungsi dan Pemboleh ubah tetap
+
+- Warna
+  - RED
+  - GREEN
+  - BLUE
+  - BLACK
+  - WHITE
+  - TRANSPARENT
+  - YELLOW
+  - CYAN
+  - MAGENTA
+  - GRAY
+  - SILVER
+  - MAROON
+  - OLIVE
+  - LIME
+  - TEAL
+  - NAVY
+  - PURPLE
+
+
+---
+
 ## Cara Guna
 
 ### 1. Masukkan perpustakaan
