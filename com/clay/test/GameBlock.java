@@ -46,7 +46,7 @@ public class GameBlock {
                 while (true) {
                     cleargraph();
                     setcolor(WHITE);
-                    outtextxy(350, 250, "GAME OVER!");
+                    outtextxy("GAME OVER!", 350, 250);
                     refreshgraph();
                     delay(2000);
                     break;
@@ -60,7 +60,7 @@ public class GameBlock {
 
         cleargraph();
         setcolor(RED);
-        outtextxy(350, 250, "GAME OVER!");
+        outtextxy("GAME OVER!", 350, 250);
         refreshgraph();
 
         delay(3000);
