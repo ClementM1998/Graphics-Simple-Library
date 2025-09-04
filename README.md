@@ -167,6 +167,7 @@ Direka khas untuk:
 - boolean iskeydown(int key)
 - boolean iskeypressed(int key)
 - boolean iskeyreleased(int key)
+- boolean isKB()
 
 - boolean ismousedown(int button)
 - boolean ismousepressed(int button)
