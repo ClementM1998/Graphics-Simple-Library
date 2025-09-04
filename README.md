@@ -48,6 +48,13 @@ Direka khas untuk:
   - NAVY
   - PURPLE
 
+- Kunci
+  - 
+
+- Butang Tetikus
+  - MOUSE_BUTTON_LEFT
+  - MOUSE_BUTTON_MIDDLE
+  - MOUSE_BUTTON_RIGHT
 
 ---
 
