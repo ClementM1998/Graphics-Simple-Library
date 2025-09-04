@@ -100,6 +100,11 @@ Direka khas untuk:
   - MOUSE_BUTTON_MIDDLE
   - MOUSE_BUTTON_RIGHT
 
+- Teks
+  - FONT_PLAIN
+  - FONT_BOLD
+  - FONT_ITALIC
+
 #### Fungsi
 
 (Init Window)
