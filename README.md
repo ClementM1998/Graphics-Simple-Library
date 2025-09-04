@@ -100,7 +100,13 @@ Direka khas untuk:
   - MOUSE_BUTTON_MIDDLE
   - MOUSE_BUTTON_RIGHT
 
-- Fungsi
+#### Fungsi
+
+(Init Window)
+- initgraph(String title)
+- initgraph(String title, int width, int height)
+- initwindow(String title, int x, int y, int width, int height)
+
 
 ---
 
