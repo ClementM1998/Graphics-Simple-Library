@@ -128,7 +128,6 @@ Direka khas untuk:
 - setcolor(int color, int alpha)
 - int getcolor()
 - setstrokewidth(float w)
-- settextstyle(String name, int style, int size)
 - setantialias(boolean a)
 ```
 (Shape Graphics)
@@ -161,6 +160,10 @@ Direka khas untuk:
 (Text)
 ```java
 - outtextxy(String text, int x, int y)
+- settextfss(String name, int style, int size)
+- settextfont(String name)
+- settextstyle(int style)
+- settextsize(int size)
 ```
 (Others)
 ```java
