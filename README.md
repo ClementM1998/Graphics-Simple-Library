@@ -103,11 +103,13 @@ Direka khas untuk:
 #### Fungsi
 
 (Init Window)
+```java
 - initgraph(String title)
 - initgraph(String title, int width, int height)
 - initwindow(String title, int x, int y, int width, int height)
-
+```
 (Control Window)
+```java
 - cleargraph()
 - refreshgraph()
 - closegraph()
@@ -123,8 +125,9 @@ Direka khas untuk:
 - setstrokewidth(float w)
 - settextstyle(String name, int style, int size)
 - setantialias(boolean a)
-
+```
 (Shape Graphics)
+```java
 - line(int x1, int y1, int x2, int y2)
 - putpixel(int x, int y, int color)
 - arc(int x, int y, int start, int end, int radius)
@@ -140,23 +143,27 @@ Direka khas untuk:
 - fillpoly(int num, int[] points)
 - triangle(int x1, int y1, int x2, int y2, int x3, int y3)
 - filltriangle(int x1, int y1, int x2, int y2, int x3, int y3)
-
+```
 (Images)
+```java
 - BufferedImage loadimage(String path)
 - BufferedImage loadimage(File file)
 - drawimagepixels(BufferedImage img, int px, int py)
 - putimage(BufferedImage img, int x, int y)
 - BufferedImage createimage(int w, int h)
 - saveframe(String path)
-
+```
 (Text)
+```java
 - outtextxy(String text, int x, int y)
-
+```
 (Others)
+```java
 - int getpixel(int x, int y)
 - floodfill(int x, int y, int newcolor)
-
+```
 (Event Handler)
+```java
 - boolean iskeydown(int key)
 - boolean iskeypressed(int key)
 - boolean iskeyreleased(int key)
@@ -166,6 +173,7 @@ Direka khas untuk:
 - boolean ismousereleased(int button)
 - int getmousex()
 - int getmousey()
+```
 ---
 
 ## Cara Guna
