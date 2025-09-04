@@ -29,6 +29,8 @@ Direka khas untuk:
 
 ## Fungsi dan Pemboleh ubah tetap
 
+- Pemboleh ubah tetap
+
 - Warna
   - RED
   - GREEN
@@ -100,6 +102,8 @@ Direka khas untuk:
   - MOUSE_BUTTON_LEFT
   - MOUSE_BUTTON_MIDDLE
   - MOUSE_BUTTON_RIGHT
+
+- Fungsi
 
 ---
 
