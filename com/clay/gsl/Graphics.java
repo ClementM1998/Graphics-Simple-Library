@@ -589,6 +589,12 @@ public final class Graphics {
         return keyReleased.contains(key & 0xFF);
     }
 
+    public static boolean isKB() {
+        for (boolean kd : keyDown) if (kd) return true;
+        if (!keyPressed.isEmpty() || !keyReleased.isEmpty()) return true;
+        return false;
+    }
+
     // Mouse queries
     public static int getmousex() {
         return mousex;
