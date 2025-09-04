@@ -87,6 +87,11 @@ public final class Graphics {
     public static final int MOUSE_BUTTON_MIDDLE = MouseEvent.BUTTON2;
     public static final int MOUSE_BUTTON_RIGHT = MouseEvent.BUTTON3;
 
+    // Teks
+    public static final int FONT_PLAIN = Font.PLAIN;
+    public static final int FONT_BOLD = Font.BOLD;
+    public static final int FONT_ITALIC = Font.ITALIC;
+
     // --- window & drawing ---
     private static JFrame window;
     private static Canvas canvas;
@@ -100,6 +105,10 @@ public final class Graphics {
 
     private static Color backgroundColor = Color.BLACK; // default clear color
     private static Color currentColor = Color.WHITE; // default current color
+
+    private static String currentFontName = "Arial";
+    private static int currentFontStyle = Font.PLAIN;
+    private static int currentFontSize = 12;
 
     // --- input state ---
     private static final boolean[] keyDown = new boolean[256];
@@ -297,11 +306,31 @@ public final class Graphics {
         g().setStroke(new BasicStroke(w));
     }
 
-    public static void settextstyle(String name, int style, int size) {
+    public static void settextfss(String name, int style, int size) {
         // Tukar font family (Arial, Courier, dsb)
         // Style (plain, bold, italic)
         // Size (px atau pt)
-        g().setFont(new Font(name, style, size));
+        currentFontName = name;
+        currentFontStyle = style;
+        currentFontSize = size;
+        g().setFont(new Font(currentFontName, currentFontStyle, currentFontSize));
+    }
+
+    public static void settextfont(String name) {
+        if (name != null && !name.isEmpty()) {
+            currentFontName = name;
+            //g().setFont(new Font(currentFontName, currentFontStyle, currentFontSize));
+        }
+    }
+
+    public static void settextstyle(int style) {
+        currentFontStyle = style;
+        //g().setFont(new Font(currentFontName, currentFontStyle, currentFontSize));
+    }
+
+    public static void settextsize(int size) {
+        currentFontSize = Math.max(1, size);
+        //g().setFont(new Font(currentFontName, currentFontStyle, currentFontSize));
     }
 
     public static void setantialis(boolean on) {
@@ -457,6 +486,7 @@ public final class Graphics {
     }
 
     public static void outtextxy(String text, int x, int y) {
+        g().setFont(new Font(currentFontName, currentFontStyle, currentFontSize));
         FontMetrics fm = g().getFontMetrics();
         g().setColor(currentColor);
         g().drawString(text, x, y + fm.getAscent());
