@@ -15,7 +15,7 @@ public class Demo {
             }
 
             setcolor(WHITE);
-            text("Press 'ESC' to exit", 0, 0);
+            outtextxy(0, 0, "Press 'ESC' to exit");
 
             // Tetapkan warna merah 100% opaque
             setcolor(0xFF0000, 255);
@@ -23,28 +23,27 @@ public class Demo {
 
             // Hijau dengan alpha 128
             setcolor(0x00FF00, 128);
-            drawrect(100, 100, 200, 150);
+            rectangle(100, 100, 200, 150);
 
             // Biru penuh
             setcolor(0x0000FF, 255);
-            drawcircle(400, 200, 80);
+            circle(400, 200, 80);
 
             // Ungu arc
             setcolor(0x8800FF, 200);
-            drawarc(400, 400, 0, 180, 100, 50);
+            arc(400, 400, 100, 50, 100);
 
             // Hitam dot
-            setcolor(0x000000, 255);
-            point(600, 100);
+            putpixel(600, 100, 0xFF000000);
 
             // Orange ellipse
             setcolor(0xFFA500, 200);
-            drawellipse(600, 300, 100, 60);
+            ellipse(600, 300, 100, 60);
 
             // Polygon bentuk bintang
             int[] pts = {100,400, 140,460, 200,460, 150,500, 170,560, 100,520, 30,560, 50,500, 0,460, 60,460};
             setcolor(0xFFD700, 255);
-            drawpolygon(pts.length/2, pts);
+            drawpoly(pts.length/2, pts);
 
             refreshgraph();
         }
