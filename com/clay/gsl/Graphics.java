@@ -1,6 +1,9 @@
 package com.clay.gsl;
 
 import javax.imageio.ImageIO;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.SourceDataLine;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -121,6 +124,11 @@ public final class Graphics {
     private static final boolean[] mouseDown = new boolean[8]; // 1..7
     private static final Set<Integer> mousePressed = new HashSet<>();
     private static final Set<Integer> mouseReleased = new HashSet<>();
+
+    // --- sound ---
+    private static SourceDataLine soundLine;
+    private static Thread soundThread;
+    private static volatile boolean soundPlaying = false;
 
     private static boolean initialized = false;
 
@@ -313,24 +321,20 @@ public final class Graphics {
         currentFontName = name;
         currentFontStyle = style;
         currentFontSize = size;
-        g().setFont(new Font(currentFontName, currentFontStyle, currentFontSize));
     }
 
     public static void settextfont(String name) {
         if (name != null && !name.isEmpty()) {
             currentFontName = name;
-            //g().setFont(new Font(currentFontName, currentFontStyle, currentFontSize));
         }
     }
 
     public static void settextstyle(int style) {
         currentFontStyle = style;
-        //g().setFont(new Font(currentFontName, currentFontStyle, currentFontSize));
     }
 
     public static void settextsize(int size) {
         currentFontSize = Math.max(1, size);
-        //g().setFont(new Font(currentFontName, currentFontStyle, currentFontSize));
     }
 
     public static void setantialis(boolean on) {
@@ -667,6 +671,59 @@ public final class Graphics {
 
     public static boolean ismousereleased(int button) {
         return mouseReleased.contains(button);
+    }
+
+    public static void sound(int freq) {
+        if (freq <= 0) return;
+
+        stopSoundInternal(); // pastikan tiada sound sebelum ini
+
+        soundPlaying = true;
+        soundThread = new Thread(() -> {
+            try {
+                float SAMPLE_RATE = 44100;
+                byte[] buf = new byte[1];
+                AudioFormat af = new AudioFormat(SAMPLE_RATE, 8, 1, true, false);
+                soundLine = AudioSystem.getSourceDataLine(af);
+                soundLine.open(af);
+                soundLine.start();
+
+                double angle = 0;
+                double increment = (2 * Math.PI) * freq / SAMPLE_RATE;
+
+                while (soundPlaying) {
+                    buf[0] = (byte) (Math.sin(angle) * 127);
+                    soundLine.write(buf, 0, 1);
+                    angle += increment;
+                    if (angle > 2 * Math.PI) angle -= 2 * Math.PI;
+                }
+
+                soundLine.drain();
+                soundLine.stop();
+                soundLine.close();
+            } catch (Exception e) {}
+        });
+        soundThread.setDaemon(true);
+        soundThread.start();
+    }
+
+    public static void nosound() {
+        stopSoundInternal();
+    }
+
+    private static void stopSoundInternal() {
+        soundPlaying = false;
+        if (soundThread != null) {
+            try {
+                soundThread.join(50);
+            } catch (InterruptedException e) {}
+            soundThread = null;
+        }
+        if (soundLine != null) {
+            soundLine.stop();
+            soundLine.close();
+            soundLine = null;
+        }
     }
 
 }
