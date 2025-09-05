@@ -1,9 +1,6 @@
 # Graphics Simple Library (GSL)
 
-**GSL (Graphics Simple Library)** ialah perpustakaan grafik ringkas dalam **Java** yang direka untuk memberi pengalaman mudah seperti **WinBGI**, tetapi lebih moden dan **cross-platform** (Windows, Linux, macOS).
-
-**GSL** ialah perpustakaan grafik ringkas dalam **Java** yang dibina berasaskan  
-`JFrame`, `Canvas` dan `BufferStrategy` yang terinspirasi daripada **Borland Graphics Interface (BGI)**.  
+**GSL (Graphics Simple Library)** ialah perpustakaan grafik ringkas dalam **Java** yang direka untuk memberi pengalaman mudah seperti **WinBGI**, tetapi lebih moden dan **cross-platform** (Windows, Linux, macOS). Dibina berasaskan `JFrame`, `Canvas` dan `BufferStrategy` yang terinspirasi daripada **Borland Graphics Interface (BGI)**.  
 
 Direka khas untuk:
 - Projek latihan  
