@@ -30,6 +30,10 @@ Dapat dijalankan pada OS:
 2. Tambah fail `Graphics.java` dalam projek anda.  
 3. Import GSL menggunakan:
 
+
+```java
+import static com.clay.gsl.Graphics.*;
+```
 ---
 
 ## Fungsi dan Pemboleh ubah tetap
