@@ -489,7 +489,7 @@ public final class Graphics {
         g().drawImage(img, x, y, null);
     }
 
-    public static void outtextxy(String text, int x, int y) {
+    public static void outtextxy(int x, int y, String text) {
         g().setFont(new Font(currentFontName, currentFontStyle, currentFontSize));
         FontMetrics fm = g().getFontMetrics();
         g().setColor(currentColor);
