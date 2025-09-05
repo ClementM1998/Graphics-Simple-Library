@@ -25,6 +25,13 @@ Dapat dijalankan pada OS:
 
 ---
 
+## 📦 Pemasangan
+1. Pastikan **Java JDK 8+** telah dipasang.  
+2. Tambah fail `Graphics.java` dalam projek anda.  
+3. Import GSL menggunakan:
+
+---
+
 ## Fungsi dan Pemboleh ubah tetap
 
 #### Pemboleh ubah tetap
