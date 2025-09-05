@@ -11,7 +11,7 @@ public class DemoGetch {
         circle(320, 240, 100);
 
         setcolor(WHITE);
-        outtextxy("Tekan apa-apa key untuk keluar ...", 250, 450);
+        outtextxy(250, 450, "Tekan apa-apa key untuk keluar ...");
 
         while (!isKB()) refreshgraph();
 
