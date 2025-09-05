@@ -27,7 +27,7 @@ public class BouncingBall {
 
             // tunjuk teks
             setcolor(WHITE);
-            outtextxy("Press ESC to exit", 10, 20);
+            outtextxy(10, 20, "Press ESC to exit");
 
             // input keluar
             if (iskeydown(KEY_ESCAPE)) closegraph();
