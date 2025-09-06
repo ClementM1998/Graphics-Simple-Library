@@ -118,13 +118,13 @@ import static com.clay.gsl.Graphics.*;
 
 #### Fungsi
 
-(Init Window)
+**(Init Window)**
 ```java
 - initgraph(String title)
 - initgraph(String title, int width, int height)
 - initwindow(String title, int x, int y, int width, int height)
 ```
-(Control Window)
+**(Control Window)**
 ```java
 - cleargraph()
 - refreshgraph()
@@ -141,7 +141,7 @@ import static com.clay.gsl.Graphics.*;
 - setstrokewidth(float w)
 - setantialias(boolean a)
 ```
-(Shape Graphics)
+**(Shape Graphics)**
 ```java
 - line(int x1, int y1, int x2, int y2)
 - putpixel(int x, int y, int color)
@@ -159,7 +159,7 @@ import static com.clay.gsl.Graphics.*;
 - triangle(int x1, int y1, int x2, int y2, int x3, int y3)
 - filltriangle(int x1, int y1, int x2, int y2, int x3, int y3)
 ```
-(Images)
+**(Images)**
 ```java
 - BufferedImage loadimage(String path)
 - BufferedImage loadimage(File file)
@@ -168,7 +168,7 @@ import static com.clay.gsl.Graphics.*;
 - BufferedImage createimage(int w, int h)
 - saveframe(String path)
 ```
-(Text)
+**(Text)**
 ```java
 - outtextxy(String text, int x, int y)
 - settextfss(String name, int style, int size)
@@ -176,12 +176,12 @@ import static com.clay.gsl.Graphics.*;
 - settextstyle(int style)
 - settextsize(int size)
 ```
-(Others)
+**(Others)**
 ```java
 - int getpixel(int x, int y)
 - floodfill(int x, int y, int newcolor)
 ```
-(Event Handler)
+**(Event Handler)**
 ```java
 - boolean iskeydown(int key)
 - boolean iskeypressed(int key)
