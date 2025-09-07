@@ -100,8 +100,8 @@ public final class Graphics {
     private static Canvas canvas;
     private static BufferStrategy bufferStrategy;
     private static Graphics2D g2; // current frame graphics
-    private static int width = 800;
-    private static int height = 600;
+    private static int width = 640; // 800;
+    private static int height = 480; // 600;
     private static boolean antialis = true;
     private static int targetFps = 0; // 0 = uncapped
     private static long frameNanos = 0L;
@@ -109,9 +109,26 @@ public final class Graphics {
     private static Color backgroundColor = Color.BLACK; // default clear color
     private static Color currentColor = Color.WHITE; // default current color
 
-    private static String currentFontName = "Arial";
-    private static int currentFontStyle = Font.PLAIN;
-    private static int currentFontSize = 12;
+    // --- text style ---
+    public static final int DEFAULT_FONT = 0; // Monospace, bitmap feel
+    public static final int TRIPLEX_FONT = 1; // Stroke-like, Serif
+    public static final int SMALL_FONT = 2;   // Small monospace
+    public static final int SANS_SERIF_FONT = 3;  // SansSerif (Arial-like)
+    public static final int GOTHIC_FONT = 4; // Gothic-like, bold Monospaced
+    public static final int SCRIPT_FONT = 5; // Script (cursive)
+    public static final int SIMPLEX_FONT = 6; // Simplex stroke, thin SansSerif
+    public static final int TRIPLEX_SCR_FONT = 7; // Triplex + Script (decorative)
+    public static final int COMPLEX_FONT = 8; // Complex Serif
+
+    public static final int HORIZ_DIR = 0;
+    public static final int VERT_DIR = 1;
+
+    private static String currentFontName = "Dialog";
+    private static int currentFontStyle = FONT_PLAIN;
+    private static int currentFontSize = 8;
+    private static int currentTextFont = DEFAULT_FONT;
+    private static int currentTextDirection = HORIZ_DIR;
+    private static int currentCharSize = 1;
 
     // --- input state ---
     private static final boolean[] keyDown = new boolean[256];
@@ -131,6 +148,69 @@ public final class Graphics {
     private static volatile boolean soundPlaying = false;
 
     private static boolean initialized = false;
+
+    // -- line to rel , move to rel
+    private static int currentX = 0;
+    private static int currentY = 0;
+    private static int currentTextX = 0;
+
+    // -- line & fill style state
+    public static final int SOLID_LINE = 0;
+    public static final int DOTTED_LINE = 1;
+    public static final int DASHED_LINE = 2;
+    public static final int USERBIT_LINE = 3;
+
+    public static final int NORM_WIDTH = 1;
+    public static final int THICK_WIDTH = 3;
+
+    private static int currentLineStyle = SOLID_LINE;
+    private static int currentLineThickness = 1;
+    private static float[] currentLinePattern = null;
+
+    public static final int SOLID_FILL = 0;
+    public static final int LINE_FILL = 1;
+    public static final int HATCH_FILL = 2;
+    public static final int XHATCH_FILL = 3;
+    public static final int WIDE_DOT_FILL = 4;
+    public static final int INTERLEAVE_FILL = 5;
+
+    private static int currentFillPattern = SOLID_FILL;
+    private static Color currentFillColor = Color.WHITE;
+    private static Paint currentFillPaint = Color.WHITE;
+
+    private static final int DEFAULT_PALETTE_SIZE = 256;
+    private static int[] palette = new int[DEFAULT_PALETTE_SIZE];
+
+    static {
+        for (int i = 0;i < palette.length;i++) palette[i] = 0xFF000000 | i;
+        palette[0] = BLACK;
+        palette[1] = WHITE;
+        palette[2] = RED;
+        palette[3] = GREEN;
+        palette[4] = BLUE;
+        palette[5] = YELLOW;
+        palette[6] = CYAN;
+        palette[7] = MAGENTA;
+        palette[8] = GRAY;
+        palette[9] = SILVER;
+        palette[10] = MAROON;
+        palette[11] = OLIVE;
+        palette[12] = LIME;
+        palette[13] = TEAL;
+        palette[14] = NAVY;
+        palette[15] = PURPLE;
+    }
+
+    public static final int LEFT_TEXT = 0;
+    public static final int CENTER_TEXT = 1;
+    public static final int RIGHT_TEXT = 2;
+
+    public static final int TOP_TEXT = 0;
+    //public static final int CENTER_TEXT = 1;
+    public static final int BOTTOM_TEXT = 2;
+
+    private static int horizJustify = LEFT_TEXT;
+    private static int vertJustify = TOP_TEXT;
 
     private Graphics() {}
 
@@ -156,7 +236,9 @@ public final class Graphics {
         Runnable ui = () -> {
             window = new JFrame(title);
             canvas = new Canvas();
-            window.setSize(width, height);
+
+            canvas.setPreferredSize(new Dimension(width, height));
+
             window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             window.setResizable(false);
             window.setLayout(new BorderLayout());
@@ -164,7 +246,7 @@ public final class Graphics {
             attachInputListeners();
 
             window.add(canvas, BorderLayout.CENTER);
-            //window.pack();
+            window.pack();
             window.setLocation(x, y);
             window.setVisible(true);
 
@@ -310,40 +392,216 @@ public final class Graphics {
         return currentColor.getRGB();
     }
 
+    public static int getmaxcolor() {
+        return palette.length - 1;
+    }
+
+    public static int getpalette(int colornum) {
+        if (colornum < 0) return TRANSPARENT;
+        if (colornum >= palette.length) return palette[palette.length - 1];
+        return palette[colornum];
+    }
+
+    public static void setpalette(int colornum, int argb) {
+        if (colornum < 0 || colornum >= palette.length) return;
+        palette[colornum] = argb;
+    }
+
+    public static void setrgbpalette(int colornum, int red, int green, int blue) {
+        if (colornum < 0 || colornum >= palette.length) return;
+        red = clampByte(red);
+        green = clampByte(green);
+        blue = clampByte(blue);
+        palette[colornum] = (0xFF << 24) | (red << 16) | (green << 8) | blue;
+    }
+
+    private static int clampByte(int v) {
+        return Math.max(0, Math.min(255, v));
+    }
+
+    private static int translateColor(int color) {
+        if (color >= 0 && color < palette.length) return palette[color];
+        return color;
+    }
+
     public static void setstrokewidth(float w) {
         g().setStroke(new BasicStroke(w));
     }
 
-    public static void settextfss(String name, int style, int size) {
-        // Tukar font family (Arial, Courier, dsb)
-        // Style (plain, bold, italic)
-        // Size (px atau pt)
-        currentFontName = name;
-        currentFontStyle = style;
-        currentFontSize = size;
-    }
+    public static void settextstyle(int font, int direction, int charsize) {
+        currentTextFont = font;
+        currentTextDirection = direction;
+        currentCharSize = Math.max(1, charsize);
 
-    public static void settextfont(String name) {
-        if (name != null && !name.isEmpty()) {
-            currentFontName = name;
+        switch (font) {
+            case DEFAULT_FONT:
+                currentFontName = "Monospaced"; // mirip bitmap, mudah dibaca
+                currentFontStyle = FONT_PLAIN;
+                break;
+            case TRIPLEX_FONT:
+                currentFontName = "Serif"; // stroke-like
+                currentFontStyle = FONT_PLAIN;
+                break;
+            case SMALL_FONT:
+                currentFontName = "Monospaced"; // kecil
+                currentFontStyle = FONT_PLAIN;
+                break;
+            case SANS_SERIF_FONT:
+                currentFontName = "SansSerif"; // Arial-like
+                currentFontStyle = FONT_PLAIN;
+                break;
+            case GOTHIC_FONT:
+                currentFontName = "Monospaced"; // Gothic-like
+                currentFontStyle = FONT_BOLD;
+                break;
+            case SCRIPT_FONT:
+                currentFontName = "Dialog"; // Java tiada cursive default
+                currentFontStyle = FONT_ITALIC;
+                break;
+            case SIMPLEX_FONT:
+                currentFontName = "SansSerif"; // garis tunggal
+                currentFontStyle = FONT_PLAIN;
+                break;
+            case TRIPLEX_SCR_FONT:
+                currentFontName = "Serif"; // dekoratif
+                currentFontStyle = FONT_ITALIC;
+                break;
+            case COMPLEX_FONT:
+                currentFontName = "Serif"; // kompleks
+                currentFontStyle = FONT_BOLD;
+                break;
+            default:
+                currentFontName = "Dialog";
+                currentFontStyle = FONT_PLAIN;
+                break;
         }
+
+        currentFontSize = 8 * currentCharSize;
     }
 
-    public static void settextstyle(int style) {
-        currentFontStyle = style;
-    }
-
-    public static void settextsize(int size) {
-        currentFontSize = Math.max(1, size);
+    public static void settextjustify(int horiz, int vert) {
+        horizJustify = horiz;
+        vertJustify = vert;
     }
 
     public static void setantialis(boolean on) {
         antialis = on;
     }
 
+    public static void setlinestyle(int style, int upattern, int thickness) {
+        currentLineStyle = style;
+        currentLineThickness = (thickness == THICK_WIDTH ? 2 : 1);
+        switch (style) {
+            case SOLID_LINE:
+                currentLinePattern = null;
+                break;
+            case DOTTED_LINE:
+                currentLinePattern = new float[] {7f, 1f}; // titik
+                break;
+            case DASHED_LINE:
+                currentLinePattern = new float[] {9f, 2f}; // dashed
+                break;
+            case USERBIT_LINE:
+                // Contoh ringkas guna upattern
+                if (upattern != 0) {
+                    currentLinePattern = new float[] { (float) upattern, (float) upattern };
+                } else {
+                    currentLinePattern = null;
+                }
+                break;
+        }
+
+        if (currentLinePattern != null) {
+            g().setStroke(new BasicStroke(
+                    currentLineThickness,
+                    BasicStroke.CAP_BUTT,
+                    BasicStroke.JOIN_BEVEL,
+                    10f,
+                    currentLinePattern,
+                    0f
+            ));
+        } else {
+            g().setStroke(new BasicStroke(currentLineThickness));
+        }
+    }
+
+    public static void setfillstyle(int pattern, int color) {
+        currentFillPattern = pattern;
+        currentFillColor = new Color(color, true);
+
+        int size = 4; // saiz tile
+
+        if (pattern == HATCH_FILL) size = 8;
+        if (pattern == XHATCH_FILL) size = 8;
+
+        BufferedImage img = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = img.createGraphics();
+
+        g2d.setColor(new Color(0, 0, 0, 0)); // transparent bg
+        g2d.fillRect(0, 0, size, size);
+
+        g2d.setColor(currentFillColor);
+
+        switch (pattern) {
+            case SOLID_FILL:
+                g2d.fillRect(0, 0, size, size);
+                break;
+            case LINE_FILL:
+                g2d.drawLine(0, 0, 0, size);
+                break;
+            case HATCH_FILL:
+                g2d.drawLine(0, 0, size, 0);
+                g2d.drawLine(0, 0, 0, size);
+                break;
+            case XHATCH_FILL:
+                g2d.drawLine(0, 0, size, size);
+                g2d.drawLine(size, 0, 0, size);
+                break;
+            case WIDE_DOT_FILL:
+                g2d.fillOval(0, 0, 2,2);
+                break;
+            case INTERLEAVE_FILL:
+                g2d.drawLine(0, 0, size/2, size/2);
+                g2d.drawLine(size/2, 0, size, size);
+                break;
+        }
+        g2d.dispose();
+        currentFillPaint = new TexturePaint(img, new Rectangle(0, 0, size, size));
+    }
+
     public static void line(int x1, int y1, int x2, int y2) {
         g().setColor(currentColor);
         g().drawLine(x1, y1, x2, y2);
+    }
+
+    public static void moveto(int x, int y) {
+        currentX = x;
+        currentY = y;
+    }
+
+    public static void moverel(int dx, int dy) {
+        currentX += dx;
+        currentY += dy;
+    }
+
+    public static void lineto(int x, int y) {
+        if (g() != null) {
+            g().setColor(currentColor);
+            g().drawLine(currentX, currentY, x, y);
+        }
+        currentX = x;
+        currentY = y;
+    }
+
+    public static void linerel(int dx, int dy) {
+        int newX = currentX + dx;
+        int newY = currentY + dy;
+        if (g() != null) {
+            g().setColor(currentColor);
+            g().drawLine(currentX, currentY, newX, newY);
+        }
+        currentX = newX;
+        currentY = newY;
     }
 
     // point > putpixel
@@ -381,6 +639,7 @@ public final class Graphics {
     // fillrect > bar
     public static void bar(int x1, int y1, int x2, int y2) {
         g().setColor(currentColor);
+        g().setPaint(currentFillPaint);
         g().fillRect(x1, y1, x2 - x1, y2 - y1);
     }
 
@@ -414,6 +673,7 @@ public final class Graphics {
 
     public static void fillellipse(int x, int y, int w, int h) {
         g().setColor(currentColor);
+        g().setPaint(currentFillPaint);
         g().fillOval(x, y, w, h);
     }
 
@@ -443,6 +703,7 @@ public final class Graphics {
             y[i] = points[2 * i + 1];
         }
         g().setColor(currentColor);
+        g().setPaint(currentFillPaint);
         g().fillPolygon(x, y, num);
     }
 
@@ -457,6 +718,7 @@ public final class Graphics {
         int[] x = { x1, x2, x3 };
         int[] y = { y1, y2, y3 };
         g().setColor(currentColor);
+        g().setPaint(currentFillPaint);
         g().fillPolygon(x, y, 3);
     }
 
@@ -491,9 +753,54 @@ public final class Graphics {
 
     public static void outtextxy(int x, int y, String text) {
         g().setFont(new Font(currentFontName, currentFontStyle, currentFontSize));
+        g().setColor(currentColor);
+
+        FontMetrics fm = g().getFontMetrics();
+        int textWidth = fm.stringWidth(text);
+        int textHeight = fm.getHeight();
+        int ascent = fm.getAscent();
+
+        int drawX = x;
+        int drawY = y;
+
+        // Horizontal justify
+        if (horizJustify == CENTER_TEXT) drawX = x - textWidth / 2;
+        else if (horizJustify == RIGHT_TEXT) drawX = x - textWidth;
+
+        // Vertical justify
+        if (vertJustify == TOP_TEXT) drawY = y + ascent;
+        else if (vertJustify == CENTER_TEXT) drawY = y + (ascent - textHeight / 2);
+        else if (vertJustify == BOTTOM_TEXT) drawY = y;
+
+        /*
+        g().drawString(text, drawX, drawY);
+
+        // Update currentX macam WinBGI
+        currentX = drawX + textWidth;
+        currentY = drawY;
+        */
+
+        if (currentTextDirection == HORIZ_DIR) {
+            g().drawString(text, drawX, drawY);
+            currentX = drawX + textWidth;
+            currentY = drawY;
+        } else {
+            Graphics2D g2d = g();
+            g2d.rotate(-Math.PI / 2, drawX, drawY);
+            g2d.drawString(text, drawX, drawY);
+            g2d.rotate(Math.PI / 2, drawX, drawY);
+            currentX = drawX;
+            currentY = drawY + textHeight;
+        }
+    }
+
+    public static void outtext(String text) {
+        g().setFont(new Font(currentFontName, currentFontStyle, currentFontSize));
         FontMetrics fm = g().getFontMetrics();
         g().setColor(currentColor);
-        g().drawString(text, x, y + fm.getAscent());
+        g().drawString(text, currentX, currentY + fm.getAscent());
+        int textwidth = fm.stringWidth(text);
+        currentX += textwidth;
     }
 
     // getpixel (ambil warna pixel dari canvas)
