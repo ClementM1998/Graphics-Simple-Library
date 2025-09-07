@@ -130,6 +130,22 @@ import static com.clay.gsl.Graphics.*;
   Horizontal: LEFT_TEXT, CENTER_TEXT, RIGHT_TEXT
   Vertical: TOP_TEXT, BOTTOM_TEXT
 
+- Gaya Garisan
+  - SOLID_LINE
+  - DOTTED_LINE
+  - DASHED_LINE
+  - USERBIT_LINE
+  - NORM_WIDTH
+  - THICK_WIDTH
+
+- Gaya Isi
+  - SOLID_FILL
+  - LINE_FILL
+  - HATCH_FILL
+  - XHATCH_FILL
+  - WIDE_DOT_FILL
+  - INTERLEAVE_FILL
+
 #### Fungsi
 
 **(Init Window)**
