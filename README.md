@@ -112,9 +112,23 @@ import static com.clay.gsl.Graphics.*;
   - MOUSE_BUTTON_RIGHT
 
 - Teks
-  - FONT_PLAIN
-  - FONT_BOLD
-  - FONT_ITALIC
+  - DEFAULT_FONT
+  - TRIPLEX_FONT
+  - SMALL_FONT
+  - SANS_SERIF_FONT
+  - GOTHIC_FONT
+  - SCRIPT_FONT
+  - SIMPLEX_FONT
+  - TRIPLEX_SCR_FONT
+  - COMPLEX_FONT
+
+- Arah Teks
+  - HORIZ_DIR
+  - VERT_DIR
+
+- Justify Teks
+  Horizontal: LEFT_TEXT, CENTER_TEXT, RIGHT_TEXT
+  Vertical: TOP_TEXT, BOTTOM_TEXT
 
 #### Fungsi
 
