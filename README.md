@@ -175,6 +175,10 @@ import static com.clay.gsl.Graphics.*;
 **(Shape Graphics)**
 ```java
 - line(int x1, int y1, int x2, int y2)
+- moveto(int x, int y)
+- moverel(int dx, int dy)
+- lineto(int x, int y)
+- linerel(int dx, int dy)
 - putpixel(int x, int y, int color)
 - arc(int x, int y, int start, int end, int radius)
 - pieslice(int x, int y, int start, int end, int radius)
