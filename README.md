@@ -163,7 +163,7 @@ import static com.clay.gsl.Graphics.*;
 **(Warna & Palette)**
 ```java
 - setbkcolor(int color)
-- getbkcolor()
+- int getbkcolor()
 - setcolor(int color)
 - setcolor(int color, int alpha)
 - int getcolor()
