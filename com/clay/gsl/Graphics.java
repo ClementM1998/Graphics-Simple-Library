@@ -326,7 +326,7 @@ public final class Graphics {
         }
     }
 
-    public static void setFrameRate(int fps) {
+    public static void setframerate(int fps) {
         targetFps = Math.max(0, fps);
         frameNanos = (targetFps <= 0) ? 0L : (1000000000L / targetFps);
     }
