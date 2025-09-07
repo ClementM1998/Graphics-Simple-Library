@@ -150,69 +150,69 @@ import static com.clay.gsl.Graphics.*;
 
 **(Window & Frame)**
 ```java
-- initgraph(String title)
-- initgraph(String title, int width, int height)
-- initwindow(String title, int x, int y, int width, int height)
-- closegraph()
-- cleargraph()
-- refreshgraph()
-- setframerate(int fps)
+- void initgraph(String title)
+- void initgraph(String title, int width, int height)
+- void initwindow(String title, int x, int y, int width, int height)
+- void closegraph()
+- void cleargraph()
+- void refreshgraph()
+- void setframerate(int fps)
 - int getwindowwidth()
 - int getwindowheight()
 ```
 **(Warna & Palette)**
 ```java
-- setbkcolor(int color)
+- void setbkcolor(int color)
 - int getbkcolor()
-- setcolor(int color)
-- setcolor(int color, int alpha)
+- void setcolor(int color)
+- void setcolor(int color, int alpha)
 - int getcolor()
-- getmaxcolor()
-- setpalette(int idx, int argb)
+- int getmaxcolor()
+- void setpalette(int idx, int argb)
 - int getpalette(int idx)
-- setrgbpalette(int idx, int red, int green, int blue)
+- void setrgbpalette(int idx, int red, int green, int blue)
 ```
 **(Shape Graphics)**
 ```java
-- line(int x1, int y1, int x2, int y2)
-- moveto(int x, int y)
-- moverel(int dx, int dy)
-- lineto(int x, int y)
-- linerel(int dx, int dy)
-- putpixel(int x, int y, int color)
-- arc(int x, int y, int start, int end, int radius)
-- pieslice(int x, int y, int start, int end, int radius)
-- sector(int x, int y, int start, int end, int xradius, int yradius)
-- rectangle(int x1, int y1, int x2, int y2)
-- bar(int x1, int y1, int x2, int y2)
-- bar3d(int x1, int y1, int x2, int y2, int depth, boolean topflag)
-- ellipse(int x, int y, int w, int h)
-- fillellipse(int x, int y, int w, int h)
-- circle(int cx, int cy, int r)
-- drawpoly(int num, int[] points)
-- fillpoly(int num, int[] points)
-- triangle(int x1, int y1, int x2, int y2, int x3, int y3)
-- filltriangle(int x1, int y1, int x2, int y2, int x3, int y3)
+- void line(int x1, int y1, int x2, int y2)
+- void moveto(int x, int y)
+- void moverel(int dx, int dy)
+- void lineto(int x, int y)
+- void linerel(int dx, int dy)
+- void putpixel(int x, int y, int color)
+- void arc(int x, int y, int start, int end, int radius)
+- void pieslice(int x, int y, int start, int end, int radius)
+- void sector(int x, int y, int start, int end, int xradius, int yradius)
+- void rectangle(int x1, int y1, int x2, int y2)
+- void bar(int x1, int y1, int x2, int y2)
+- void bar3d(int x1, int y1, int x2, int y2, int depth, boolean topflag)
+- void ellipse(int x, int y, int w, int h)
+- void fillellipse(int x, int y, int w, int h)
+- void circle(int cx, int cy, int r)
+- void drawpoly(int num, int[] points)
+- void fillpoly(int num, int[] points)
+- void triangle(int x1, int y1, int x2, int y2, int x3, int y3)
+- void filltriangle(int x1, int y1, int x2, int y2, int x3, int y3)
 ```
 **(Images)**
 ```java
 - BufferedImage loadimage(String path)
 - BufferedImage loadimage(File file)
-- drawimagepixels(BufferedImage img, int px, int py)
-- putimage(BufferedImage img, int x, int y)
+- void drawimagepixels(BufferedImage img, int px, int py)
+- void putimage(BufferedImage img, int x, int y)
 - BufferedImage createimage(int w, int h)
-- saveframe(String path)
+- void saveframe(String path)
 ```
 **(Text)**
 ```java
-- outtextxy(String text, int x, int y)
-- outtext(String text)
-- settextstyle(int font, int direction, int charsize)
+- void outtextxy(String text, int x, int y)
+- void outtext(String text)
+- void settextstyle(int font, int direction, int charsize)
 ```
 **(Others)**
 ```java
 - int getpixel(int x, int y)
-- floodfill(int x, int y, int newcolor)
+- void floodfill(int x, int y, int newcolor)
 ```
 **(Event Handler)**
 ```java
