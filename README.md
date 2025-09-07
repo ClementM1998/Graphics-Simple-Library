@@ -3,8 +3,8 @@
 **GSL (Graphics Simple Library)** ialah perpustakaan grafik ringkas dalam **Java** yang direka untuk memberi pengalaman mudah seperti **WinBGI**, tetapi lebih moden dan **cross-platform** (Windows, Linux, macOS). Dibina berasaskan `JFrame`, `Canvas` dan `BufferStrategy` yang terinspirasi daripada **Borland Graphics Interface (BGI)**. Tujuan utama GSL adalah untuk membantu pelajar, pengajar, dan pembangun membuat **projek latihan grafik, animasi ringkas, atau mini game 2D** tanpa memerlukan perpustakaan tambahan.
 
 Direka khas untuk:
-- Projek latihan  
-- Demo grafik  
+- Projek latihan
+- Demo grafik
 - Mini game 2D
 - Tanpa memerlukan perpustakaan luaran.
 
@@ -156,7 +156,7 @@ import static com.clay.gsl.Graphics.*;
 - closegraph()
 - cleargraph()
 - refreshgraph()
-- setFrameRate(int fps)
+- setframerate(int fps)
 - int getwindowwidth()
 - int getwindowheight()
 ```
