@@ -173,7 +173,7 @@ import static com.clay.gsl.Graphics.*;
 - void setrgbpalette(int idx, int red, int green, int blue)
 ```
 **(Shape Graphics)**
-```java
+``` java
 - void line(int x1, int y1, int x2, int y2)
 - void moveto(int x, int y)
 - void moverel(int dx, int dy)
