@@ -148,28 +148,29 @@ import static com.clay.gsl.Graphics.*;
 
 #### Fungsi
 
-**(Init Window)**
+**(Window & Frame)**
 ```java
 - initgraph(String title)
 - initgraph(String title, int width, int height)
 - initwindow(String title, int x, int y, int width, int height)
-```
-**(Control Window)**
-```java
+- closegraph()
 - cleargraph()
 - refreshgraph()
-- closegraph()
 - setFrameRate(int fps)
 - int getwindowwidth()
 - int getwindowheight()
-- delay(long msec)
+```
+**(Warna & Palette)**
+```java
 - setbkcolor(int color)
 - getbkcolor()
 - setcolor(int color)
 - setcolor(int color, int alpha)
 - int getcolor()
-- setstrokewidth(float w)
-- setantialias(boolean a)
+- getmaxcolor()
+- setpalette(int idx, int argb)
+- int getpalette(int idx)
+- setrgbpalette(int idx, int red, int green, int blue)
 ```
 **(Shape Graphics)**
 ```java
