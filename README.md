@@ -171,10 +171,8 @@ import static com.clay.gsl.Graphics.*;
 **(Text)**
 ```java
 - outtextxy(String text, int x, int y)
-- settextfss(String name, int style, int size)
-- settextfont(String name)
-- settextstyle(int style)
-- settextsize(int size)
+- outtext(String text)
+- settextstyle(int font, int direction, int charsize)
 ```
 **(Others)**
 ```java
