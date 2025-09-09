@@ -151,8 +151,8 @@ import static com.clay.gsl.Graphics.*;
 **(Window & Frame)**
 ```java
 - void initgraph(String title)
-- void initgraph(String title, int width, int height)
-- void initwindow(String title, int x, int y, int width, int height)
+- void initgraph(int width, int height, String title)
+- void initwindow(int width, int height, String title, int x, int y)
 - void closegraph()
 - void cleargraph()
 - void refreshgraph()
