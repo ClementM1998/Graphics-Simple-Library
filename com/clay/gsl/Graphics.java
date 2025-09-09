@@ -177,6 +177,7 @@ public final class Graphics {
     private static int currentFillPattern = SOLID_FILL;
     private static Color currentFillColor = Color.WHITE;
     private static Paint currentFillPaint = Color.WHITE;
+    private static boolean isFillPaint = false;
 
     private static final int DEFAULT_PALETTE_SIZE = 256;
     private static int[] palette = new int[DEFAULT_PALETTE_SIZE];
@@ -259,7 +260,7 @@ public final class Graphics {
         else try { SwingUtilities.invokeAndWait(ui); } catch (Exception e) {}
 
         // prime frame timing
-        setFrameRate(targetFps);
+        setframerate(targetFps);
         cleargraph();
     }
 
@@ -567,6 +568,7 @@ public final class Graphics {
         }
         g2d.dispose();
         currentFillPaint = new TexturePaint(img, new Rectangle(0, 0, size, size));
+        isFillPaint = true;
     }
 
     public static void line(int x1, int y1, int x2, int y2) {
@@ -638,8 +640,8 @@ public final class Graphics {
 
     // fillrect > bar
     public static void bar(int x1, int y1, int x2, int y2) {
-        g().setColor(currentColor);
-        g().setPaint(currentFillPaint);
+        if (isFillPaint) g().setPaint(currentFillPaint);
+        else g().setColor(currentColor);
         g().fillRect(x1, y1, x2 - x1, y2 - y1);
     }
 
@@ -672,8 +674,8 @@ public final class Graphics {
     }
 
     public static void fillellipse(int x, int y, int w, int h) {
-        g().setColor(currentColor);
-        g().setPaint(currentFillPaint);
+        if (isFillPaint) g().setPaint(currentFillPaint);
+        else g().setColor(currentColor);
         g().fillOval(x, y, w, h);
     }
 
@@ -702,8 +704,8 @@ public final class Graphics {
             x[i] = points[2 * i];
             y[i] = points[2 * i + 1];
         }
-        g().setColor(currentColor);
-        g().setPaint(currentFillPaint);
+        if (isFillPaint) g().setPaint(currentFillPaint);
+        else g().setColor(currentColor);
         g().fillPolygon(x, y, num);
     }
 
@@ -717,8 +719,8 @@ public final class Graphics {
     public static void filltriangle(int x1, int y1, int x2, int y2, int x3, int y3) {
         int[] x = { x1, x2, x3 };
         int[] y = { y1, y2, y3 };
-        g().setColor(currentColor);
-        g().setPaint(currentFillPaint);
+        if (isFillPaint) g().setPaint(currentFillPaint);
+        else g().setColor(currentColor);
         g().fillPolygon(x, y, 3);
     }
 
