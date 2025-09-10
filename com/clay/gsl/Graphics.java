@@ -125,7 +125,7 @@ public final class Graphics {
 
     private static String currentFontName = "Dialog";
     private static int currentFontStyle = FONT_PLAIN;
-    private static int currentFontSize = 8;
+    private static int currentFontSize = 12;
     private static int currentTextFont = DEFAULT_FONT;
     private static int currentTextDirection = HORIZ_DIR;
     private static int currentCharSize = 1;
@@ -177,7 +177,6 @@ public final class Graphics {
     private static int currentFillPattern = SOLID_FILL;
     private static Color currentFillColor = Color.WHITE;
     private static Paint currentFillPaint = Color.WHITE;
-    private static boolean isFillPaint = false;
 
     private static final int DEFAULT_PALETTE_SIZE = 256;
     private static int[] palette = new int[DEFAULT_PALETTE_SIZE];
@@ -221,14 +220,14 @@ public final class Graphics {
 
     // === Init Window ===
     public static void initgraph(String title) {
-        initgraph(title, width, height);
+        initwindow(width, height, title);
     }
 
-    public static void initgraph(String title, int w, int h) {
-        initwindow(title, 0, 0, w, h);
+    public static void initwindow(int w, int h, String title) {
+        initwindow( w, h, title, 1, 1);
     }
 
-    public static void initwindow(String title, int x, int y, int w, int h) {
+    public static void initwindow(int w, int h, String title, int x, int y) {
         if (initialized) return;
 
         width = Math.max(1, w);
@@ -568,7 +567,6 @@ public final class Graphics {
         }
         g2d.dispose();
         currentFillPaint = new TexturePaint(img, new Rectangle(0, 0, size, size));
-        isFillPaint = true;
     }
 
     public static void line(int x1, int y1, int x2, int y2) {
@@ -640,8 +638,8 @@ public final class Graphics {
 
     // fillrect > bar
     public static void bar(int x1, int y1, int x2, int y2) {
-        if (isFillPaint) g().setPaint(currentFillPaint);
-        else g().setColor(currentColor);
+        g().setColor(currentColor);
+        g().setPaint(currentFillPaint);
         g().fillRect(x1, y1, x2 - x1, y2 - y1);
     }
 
@@ -674,8 +672,8 @@ public final class Graphics {
     }
 
     public static void fillellipse(int x, int y, int w, int h) {
-        if (isFillPaint) g().setPaint(currentFillPaint);
-        else g().setColor(currentColor);
+        g().setColor(currentColor);
+        g().setPaint(currentFillPaint);
         g().fillOval(x, y, w, h);
     }
 
@@ -704,8 +702,8 @@ public final class Graphics {
             x[i] = points[2 * i];
             y[i] = points[2 * i + 1];
         }
-        if (isFillPaint) g().setPaint(currentFillPaint);
-        else g().setColor(currentColor);
+        g().setColor(currentColor);
+        g().setPaint(currentFillPaint);
         g().fillPolygon(x, y, num);
     }
 
@@ -719,8 +717,8 @@ public final class Graphics {
     public static void filltriangle(int x1, int y1, int x2, int y2, int x3, int y3) {
         int[] x = { x1, x2, x3 };
         int[] y = { y1, y2, y3 };
-        if (isFillPaint) g().setPaint(currentFillPaint);
-        else g().setColor(currentColor);
+        g().setColor(currentColor);
+        g().setPaint(currentFillPaint);
         g().fillPolygon(x, y, 3);
     }
 
@@ -816,7 +814,8 @@ public final class Graphics {
 
     // floodfill (simple: isi statu warna dalam polygon tertutup)
     // basic version sahaja, tidak se-efisien WinBGI
-    public static void floodfill(int x, int y, int newColor) {
+    public static void floodfill(int startx, int starty, int newColor) {
+        /*
         BufferedImage img = new BufferedImage(getwindowwidth(), getwindowheight(), BufferedImage.TYPE_INT_ARGB);
         Graphics2D gimg = img.createGraphics();
         canvas.paint(gimg);
@@ -841,6 +840,86 @@ public final class Graphics {
         }
 
         g().drawImage(img, 0, 0, null);
+         */
+
+        /*
+        if (canvas == null) return;
+
+        BufferedImage img = new BufferedImage(getwindowwidth(), getwindowheight(), BufferedImage.TYPE_INT_ARGB);
+        Graphics2D gimg = img.createGraphics();
+        canvas.paint(gimg);
+        gimg.dispose();
+
+        int w = img.getWidth();
+        int h = img.getHeight();
+
+        if (startx < 0 || starty < 0 || startx >= w || starty >= h) return;
+
+        int targetColor = img.getRGB(startx, starty);
+        newColor = translateColor(newColor);
+        if (targetColor == newColor) return;
+
+        int max = w * h;
+        int[] stackX = new int[max];
+        int[] stackY = new int[max];
+        int sp = 0;
+
+        // push seed
+        stackX[sp] = startx;
+        stackY[sp] = starty;
+        sp++;
+
+        while (sp > 0) {
+            sp--;
+            int x = stackX[sp];
+            int y = stackY[sp];
+
+            int lx = x;
+            while (lx >= 0 && img.getRGB(lx, y) == targetColor) lx--;
+            lx++;
+
+            boolean spanAbove = false;
+            boolean spanBelow = false;
+            int rx = lx;
+            while (rx < w && img.getRGB(rx, y) == targetColor) {
+                img.setRGB(rx, y, newColor);
+
+                if (y > 0) {
+                    if (img.getRGB(rx, y - 1) == targetColor) {
+                        if (!spanAbove) {
+                            if (sp < max) {
+                                stackX[sp] = rx;
+                                stackY[sp] = y - 1;
+                                sp++;
+                            }
+                            spanAbove = true;
+                        }
+                    } else {
+                        spanAbove = false;
+                    }
+                }
+
+                if (y < h - 1) {
+                    if (img.getRGB(rx, y + 1) == targetColor) {
+                        if (!spanBelow) {
+                            if (sp < max) {
+                                stackX[sp] = rx;
+                                stackY[sp] = y + 1;
+                                sp++;
+                            }
+                            spanBelow = true;
+                        }
+                    } else {
+                        spanBelow = false;
+                    }
+                }
+
+                rx++;
+            }
+        }
+
+        g().drawImage(img, 0, 0, null);
+         */
     }
 
     public static BufferedImage createimage(int w, int h) {
