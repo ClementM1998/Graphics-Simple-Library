@@ -127,8 +127,8 @@ import static com.clay.gsl.Graphics.*;
   - VERT_DIR
 
 - Justify Teks
-  Horizontal: LEFT_TEXT, CENTER_TEXT, RIGHT_TEXT
-  Vertical: TOP_TEXT, BOTTOM_TEXT
+  - Horizontal: LEFT_TEXT, CENTER_TEXT, RIGHT_TEXT
+  - Vertical: TOP_TEXT, BOTTOM_TEXT
 
 - Gaya Garisan
   - SOLID_LINE
