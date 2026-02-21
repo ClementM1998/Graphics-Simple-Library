@@ -205,7 +205,7 @@ import static com.clay.gsl.Graphics.*;
 ```
 **(Text)**
 ```java
-- void outtextxy(String text, int x, int y)
+- void outtextxy(int x, int y, String text)
 - void outtext(String text)
 - void settextstyle(int font, int direction, int charsize)
 ```
