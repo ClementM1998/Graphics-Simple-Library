@@ -257,6 +257,15 @@ public class Demo {
     }
 }
 ```
+### 3. Jalankan program dalam perintah baris
+### Linux
+```
+java -cp .:GSL.jar Demo
+```
+### Windows
+```
+java -cp .;GSL.jar Demo
+```
 
 ### Contoh BouncingBall.java
 ```java
