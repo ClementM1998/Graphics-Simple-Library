@@ -258,11 +258,11 @@ public class Demo {
 }
 ```
 ### 3. Jalankan program dalam perintah baris
-### Linux
+### 🐧 Linux
 ```
 java -cp .:GSL.jar Demo
 ```
-### Windows
+### 🪟 Windows
 ```
 java -cp .;GSL.jar Demo
 ```
